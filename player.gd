@@ -1,7 +1,7 @@
 
-extends RigidBody2D
+extends KinematicBody2D
 
-const SPEED = 2000
+const SPEED = 100
 const TIME_UNIT = 1
 const rooms = ["Lobby", "Hallways", "Shower", "Cafe", "Bedroom"]
 const needs = ["Hungry", "Dirty", "Sleepy"]
@@ -13,7 +13,6 @@ const need_dict = {
 
 var path = []
 var selected = false
-var destination = null
 var time_acc = 0
 var satisfaction = 50
 var need = needs[randi() % needs.size()]
@@ -27,17 +26,17 @@ func _ready():
 	add_child(roomLabel)
 
 func _fixed_process(delta):
-	if destination != null:
-		if destination.distance_to(get_global_pos()) < 5:
-			destination = null
-			path = []
-		else:
-			path = get_node("../Navigation2D").get_simple_path(get_global_pos(), destination, false)
-
-	if path.size() >= 1:
-		var dist = path[1] - get_global_pos()
-		var impulse = dist.normalized() * SPEED
-		apply_impulse(Vector2(), impulse * delta)
+	if path.size() > 0:
+		var dist = path[0] - get_global_pos()
+		var velocity = dist.normalized() * SPEED
+		move(velocity * delta)
+		if dist.length() < 15:
+			path.pop_front()
+	
+	if (is_colliding()):
+		var normal = get_collision_normal()
+		var velocity = normal.slide(velocity)
+		move(velocity * delta)
 	
 	if time_acc >= TIME_UNIT:
 		tick_time_unit()
@@ -52,6 +51,8 @@ func _draw():
 			var p1 = path[i - 1] - get_global_pos()
 			var p2 = path[i] - get_global_pos()
 			draw_line(p1, p2, Color(0, 1, 0))
+	if selected:
+		draw_circle(get_pos() - get_global_pos(), 10, Color(0, 0, 1))
 	get_node("Satisfaction").set_text("%d" % satisfaction)
 
 func _unhandled_input(event):
@@ -63,7 +64,8 @@ func _unhandled_input(event):
 			selected = false
 	elif event.type == InputEvent.MOUSE_BUTTON and event.button_index == BUTTON_RIGHT and event.is_pressed():
 		if selected:
-			destination = get_global_mouse_pos()
+			var destination = get_global_mouse_pos()
+			path = get_node("../NavigationNode").find_best_path(get_global_pos(), destination)
 
 
 func tick_time_unit():
