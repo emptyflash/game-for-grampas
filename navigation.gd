@@ -10,7 +10,7 @@ func heuristic(a, b):
 	return abs(a.x - b.x) + abs(a.y - b.y)
 
 func get_neighbors(pos):
-	var offsets = [Vector2(0, 1), Vector2(1, 0), Vector2(0, -1), Vector2(-1, 0), Vector2(1, 1), Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1)]
+	var offsets = [Vector2(0, 1), Vector2(1, 0), Vector2(0, -1), Vector2(-1, 0)]
 	var positions = []
 	for offset in offsets:
 		var newPos = pos + offset
