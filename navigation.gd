@@ -16,6 +16,13 @@ func get_neighbors(pos):
 		var newPos = pos + offset
 		if check_movable(newPos):
 			positions.append(newPos)
+	var potential_offsets = [Vector2(1, 1), Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1)]
+	for offset in potential_offsets:
+		var new_pos = pos + offset
+		var between_x = pos + Vector2(offset.x, 0)
+		var between_y = pos + Vector2(0, offset.y)
+		if check_movable(new_pos) and check_movable(between_x) and check_movable(between_y):
+			positions.append(new_pos)
 	return positions
 
 func check_movable(pos):

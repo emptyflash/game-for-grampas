@@ -19,24 +19,36 @@ func _fixed_process(delta):
 		if dist.length() < 2:
 			path.pop_front()
 	else:
-		play_animation_for_direction(Vector2())
+		play_animation("idle")
 
 	update()
 
-func play_animation_for_direction(direction):
+func play_animation(name):
 	var player = get_node("Sprite/AnimationPlayer")
+	if player.get_current_animation() != name:
+		player.play(name)
+
+func play_animation_for_direction(direction):
 	var animation_name = "idle"
-	if direction.x > 0 and direction.y > 0:
-		animation_name = "walk_down_right"
-	elif direction.x > 0 and direction.y < 0:
-		animation_name = "walk_up_right"
-	elif direction.x < 0 and direction.y > 0:
-		animation_name = "walk_down_left"
-	elif direction.x < 0 and direction.y < 0:
+	var angle = direction.angle() + 9* PI / 8
+	if angle > 0 and angle < PI / 4:
+		animation_name = "walk_up"
+	elif angle >= PI / 4 and angle < PI / 2:
 		animation_name = "walk_up_left"
+	elif angle >= PI / 2 and angle < 3 * PI / 4:
+		animation_name = "walk_left"
+	elif angle >= 3 * PI / 4 and angle < PI:
+		animation_name = "walk_down_left"
+	elif angle >= PI and angle < 5 * PI / 4:
+		animation_name = "walk_down"
+	elif angle >= 5 * PI / 4 and angle < 3 * PI / 2:
+		animation_name = "walk_down_right"
+	elif angle >= 3 * PI / 2 and angle < 7 * PI / 4:
+		animation_name = "walk_right"
+	elif angle >= 7 * PI / 4 and angle < 2 * PI:
+		animation_name = "walk_up_right"
 	
-	if player.get_current_animation() != animation_name:
-		player.play(animation_name)
+	play_animation(animation_name)
 
 func _draw():
 	if path.size() > 1:
